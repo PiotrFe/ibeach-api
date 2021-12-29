@@ -2,7 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import bodyParser from "body-parser";
-import { storeFile } from "./controllers/index.js";
+import { storeFile, retrieveData } from "./controllers/index.js";
 
 dotenv.config();
 
@@ -30,5 +30,20 @@ app.post("/api/master/:weekTs", async (req, res) => {
     res.status(201).send("Uploaded successfully");
   } catch (e) {
     res.status(422).send("Upload failed");
+  }
+});
+
+app.get("/api/week/:weekTs/", async (req, res) => {
+  const weekTs = req.params.weekTs;
+
+  try {
+    const { data, statusSummary } = await retrieveData(weekTs);
+    res.json({
+      data,
+      statusSummary,
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(422).send(e);
   }
 });
