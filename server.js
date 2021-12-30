@@ -29,7 +29,8 @@ app.post("/api/master/:weekTs", async (req, res) => {
     await storeFile({ weekTs, data: req.body });
     res.status(201).send("Uploaded successfully");
   } catch (e) {
-    res.status(422).send("Upload failed");
+    console.log(e);
+    res.status(400).send("Upload failed");
   }
 });
 
@@ -37,13 +38,18 @@ app.get("/api/week/:weekTs/", async (req, res) => {
   const weekTs = req.params.weekTs;
 
   try {
-    const { data, statusSummary } = await retrieveData(weekTs);
+    const { data, statusSummary, lookupTable } = await retrieveData(weekTs);
     res.json({
       data,
       statusSummary,
+      lookupTable,
     });
   } catch (e) {
     console.log(e);
-    res.status(422).send(e);
+    if (e.message === "No data") {
+      res.status(404).send();
+    } else {
+      res.status(500).send();
+    }
   }
 });

@@ -7,10 +7,10 @@ const baseDir = "./data_storage/";
 
 export const storeFile = async ({ weekTs, data }) => {
   const dir = path.join(baseDir, "master");
-  let dataParsed;
+  let week, full;
 
   try {
-    dataParsed = JSON.parse(data);
+    ({ week, full } = JSON.parse(data));
   } catch (e) {
     console.log(e);
     return Promise.reject("Unable to read file");
@@ -19,10 +19,10 @@ export const storeFile = async ({ weekTs, data }) => {
   try {
     const fileName = `${weekTs}.csv`;
     const savePath = path.join(dir, fileName);
-    const dataBin = new Uint8Array(Buffer.from(data));
 
-    await writeFile(savePath, dataBin);
-    return await saveSplitFilesForPDMs(weekTs, dataParsed);
+    await writeFile(savePath, JSON.stringify(week));
+    await saveListForLookup(full);
+    return await saveSplitFilesForPDMs(weekTs, week);
   } catch (err) {
     console.log(err);
     throw new Error();
@@ -36,7 +36,6 @@ const saveSplitFilesForPDMs = async (weekTs, data) => {
     await access(dir, constants.R_OK | constants.W_OK);
   } catch (e) {
     await mkdir(dir);
-    console.log(e);
   }
 
   const dataPerPDM = {};
@@ -63,6 +62,14 @@ const saveSplitFilesForPDMs = async (weekTs, data) => {
         return await writeFile(savePath, JSON.stringify(data));
       })
     );
+  } catch (e) {
+    throw new Error(e);
+  }
+};
+
+const saveListForLookup = async (data) => {
+  try {
+    await writeFile(path.join(baseDir, "lookup.json"), JSON.stringify(data));
   } catch (e) {
     throw new Error(e);
   }

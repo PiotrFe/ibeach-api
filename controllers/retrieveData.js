@@ -3,19 +3,12 @@ import { fileURLToPath } from "url";
 import { access, readdir, readFile } from "fs/promises";
 import path from "path";
 
-const baseDir = "../data_storage/";
+const currentPath = fileURLToPath(import.meta.url);
+const currentDir = path.dirname(currentPath);
+const baseDir = path.resolve(currentDir, "..", "data_storage");
 
 export const retrieveData = async (weekTs) => {
-  const currentPath = fileURLToPath(import.meta.url);
-  const currentDir = path.dirname(currentPath);
-
-  const filePath = path.resolve(
-    currentDir,
-    "..",
-    "data_storage",
-    "people",
-    `${weekTs}`
-  );
+  const filePath = path.resolve(baseDir, "people", `${weekTs}`);
   let data = [];
   let statusSummary = {};
 
@@ -23,7 +16,7 @@ export const retrieveData = async (weekTs) => {
     await access(filePath, constants.R_OK);
   } catch (e) {
     console.log(e);
-    throw new Error("No data available");
+    throw new Error("No data");
   }
 
   try {
@@ -46,12 +39,17 @@ export const retrieveData = async (weekTs) => {
       data.push(...dataJSON);
     }
 
+    const lookupTable = await readFile(
+      path.join(baseDir, "lookup.json"),
+      "utf8"
+    );
+
     return {
       data,
       statusSummary,
+      lookupTable: JSON.parse(lookupTable),
     };
   } catch (e) {
-    console.log(e);
-    throw new Error("Unable to access data");
+    throw new Error(e);
   }
 };
