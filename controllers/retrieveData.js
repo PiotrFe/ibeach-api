@@ -1,14 +1,10 @@
 import { constants } from "fs";
-import { fileURLToPath } from "url";
 import { access, readdir, readFile } from "fs/promises";
 import path from "path";
-
-const currentPath = fileURLToPath(import.meta.url);
-const currentDir = path.dirname(currentPath);
-const baseDir = path.resolve(currentDir, "..", "data_storage");
+import { storageDir } from "../server.js";
 
 export const retrieveData = async (weekTs) => {
-  const filePath = path.resolve(baseDir, "people", `${weekTs}`);
+  const filePath = path.resolve(storageDir, "people", `${weekTs}`);
   let data = [];
   let statusSummary = {};
 
@@ -40,7 +36,7 @@ export const retrieveData = async (weekTs) => {
     }
 
     const lookupTable = await readFile(
-      path.join(baseDir, "lookup.json"),
+      path.join(storageDir, "lookup.json"),
       "utf8"
     );
 

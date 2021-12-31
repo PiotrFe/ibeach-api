@@ -2,7 +2,9 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import bodyParser from "body-parser";
-import { storeFile, retrieveData } from "./controllers/index.js";
+import { fileURLToPath } from "url";
+import path from "path";
+import { storeFile, retrieveData, saveFile } from "./controllers/index.js";
 
 dotenv.config();
 
@@ -12,6 +14,10 @@ app.use(bodyParser.text());
 app.use(bodyParser.json());
 const port = process.env.PORT || 4000;
 
+const currentPath = fileURLToPath(import.meta.url);
+const currentDir = path.dirname(currentPath);
+export const storageDir = path.resolve(currentDir, "data_storage");
+
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
@@ -19,8 +25,6 @@ app.listen(port, () => {
 app.get("/", (req, res) => {
   res.send("Hello everyone");
 });
-
-app.get("/api/master/:weekTs", (req, res) => {});
 
 app.post("/api/master/:weekTs", async (req, res) => {
   const weekTs = req.params.weekTs;
@@ -51,5 +55,18 @@ app.get("/api/week/:weekTs/", async (req, res) => {
     } else {
       res.status(500).send();
     }
+  }
+});
+
+app.post("/api/week/:weekTs/:pdm", async (req, res) => {
+  const { weekTs, pdm } = req.params;
+  const pdmDecoded = decodeURIComponent(pdm);
+
+  try {
+    await saveFile({ weekTs, pdm: pdmDecoded, data: req.body });
+    res.status(201).send("Saved successfully");
+  } catch (e) {
+    console.log(e);
+    res.status(500).send();
   }
 });

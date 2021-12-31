@@ -1,12 +1,10 @@
 import { constants } from "fs";
 import { writeFile, access, mkdir } from "fs/promises";
 import path from "path";
-import { Buffer } from "buffer";
-
-const baseDir = "./data_storage/";
+import { storageDir } from "../server.js";
 
 export const storeFile = async ({ weekTs, data }) => {
-  const dir = path.join(baseDir, "master");
+  const masterDir = path.join(storageDir, "master");
   let week, full;
 
   try {
@@ -18,9 +16,9 @@ export const storeFile = async ({ weekTs, data }) => {
 
   try {
     const fileName = `${weekTs}.csv`;
-    const savePath = path.join(dir, fileName);
+    const savePath = path.join(masterDir, fileName);
 
-    await writeFile(savePath, JSON.stringify(week));
+    await writeFile(savePath, JSON.stringify(week), "utf8");
     await saveListForLookup(full);
     return await saveSplitFilesForPDMs(weekTs, week);
   } catch (err) {
@@ -30,7 +28,7 @@ export const storeFile = async ({ weekTs, data }) => {
 };
 
 const saveSplitFilesForPDMs = async (weekTs, data) => {
-  const dir = path.join(baseDir, "people", weekTs);
+  const dir = path.join(storageDir, "people", weekTs);
 
   try {
     await access(dir, constants.R_OK | constants.W_OK);
@@ -69,7 +67,7 @@ const saveSplitFilesForPDMs = async (weekTs, data) => {
 
 const saveListForLookup = async (data) => {
   try {
-    await writeFile(path.join(baseDir, "lookup.json"), JSON.stringify(data));
+    await writeFile(path.join(storageDir, "lookup.json"), JSON.stringify(data));
   } catch (e) {
     throw new Error(e);
   }
