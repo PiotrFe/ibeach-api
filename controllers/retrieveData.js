@@ -3,7 +3,7 @@ import { access, readdir, readFile } from "fs/promises";
 import path from "path";
 import { storageDir } from "../server.js";
 
-export const retrieveData = async (weekTs) => {
+export const retrieveData = async (weekTs, forPdm) => {
   const filePath = path.resolve(storageDir, "people", `${weekTs}`);
   let data = [];
   let statusSummary = {};
@@ -35,15 +35,17 @@ export const retrieveData = async (weekTs) => {
       data.push(...dataJSON);
     }
 
-    const lookupTable = await readFile(
-      path.join(storageDir, "lookup.json"),
-      "utf8"
-    );
+    // lookup file only to be sent on first fetch (with no pdm filter)
+    const lookupTable = forPdm
+      ? null
+      : await readFile(path.join(storageDir, "lookup.json"), "utf8");
 
     return {
       data,
       statusSummary,
-      lookupTable: JSON.parse(lookupTable),
+      ...(lookupTable && {
+        lookupTable: JSON.parse(lookupTable),
+      }),
     };
   } catch (e) {
     throw new Error(e);

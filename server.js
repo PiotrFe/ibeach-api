@@ -58,6 +58,26 @@ app.get("/api/week/:weekTs/", async (req, res) => {
   }
 });
 
+app.get("/api/week/:weekTs/:pdm", async (req, res) => {
+  const { weekTs, pdm } = req.params;
+  const pdmDecoded = decodeURIComponent(pdm);
+
+  try {
+    const { data, statusSummary } = await retrieveData(weekTs, pdmDecoded);
+    res.json({
+      data,
+      statusSummary,
+    });
+  } catch (e) {
+    console.log(e);
+    if (e.message === "No data") {
+      res.status(404).send();
+    } else {
+      res.status(500).send();
+    }
+  }
+});
+
 app.post("/api/week/:weekTs/:pdm", async (req, res) => {
   const { weekTs, pdm } = req.params;
   const pdmDecoded = decodeURIComponent(pdm);
