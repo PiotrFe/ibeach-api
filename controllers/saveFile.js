@@ -18,6 +18,11 @@ export const saveFile = async ({ weekTs, pdm, data, submit = false }) => {
     const fileContents = await readFile(filePath, "utf8");
     const dataJSON = JSON.parse(fileContents);
     const status = dataJSON.splice(dataJSON.length - 1, 1)[0];
+
+    if (submit) {
+      status.status = "done";
+    }
+
     const updatedData = [...JSON.parse(data), status];
 
     return await writeFile(filePath, JSON.stringify(updatedData), "utf8");

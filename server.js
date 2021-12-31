@@ -22,10 +22,6 @@ app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 
-app.get("/", (req, res) => {
-  res.send("Hello everyone");
-});
-
 app.post("/api/master/:weekTs", async (req, res) => {
   const weekTs = req.params.weekTs;
 
@@ -84,6 +80,19 @@ app.post("/api/week/:weekTs/:pdm", async (req, res) => {
 
   try {
     await saveFile({ weekTs, pdm: pdmDecoded, data: req.body });
+    res.status(201).send("Saved successfully");
+  } catch (e) {
+    console.log(e);
+    res.status(500).send();
+  }
+});
+
+app.post("/api/week/:weekTs/:pdm/submit", async (req, res) => {
+  const { weekTs, pdm } = req.params;
+  const pdmDecoded = decodeURIComponent(pdm);
+
+  try {
+    await saveFile({ weekTs, pdm: pdmDecoded, data: req.body, submit: true });
     res.status(201).send("Saved successfully");
   } catch (e) {
     console.log(e);
