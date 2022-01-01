@@ -11,14 +11,27 @@ export const retrieveData = async ({ weekTs, pdm, submittedOnly = false }) => {
   try {
     await access(filePath, constants.R_OK);
   } catch (e) {
-    console.log(e);
     throw new Error("No data");
+  }
+
+  if (submittedOnly) {
+    try {
+      const submittedData = await retrieveSubmittedData({ weekTs });
+
+      return Promise.resolve(submittedData);
+    } catch (e) {
+      throw new Error("No data");
+    }
   }
 
   try {
     const files = await readdir(filePath);
 
     for (let file of files) {
+      if (file === "ready.json") {
+        continue;
+      }
+
       const fileContents = await readFile(path.join(filePath, file), "utf8");
       const dataJSON = JSON.parse(fileContents);
 
@@ -48,6 +61,28 @@ export const retrieveData = async ({ weekTs, pdm, submittedOnly = false }) => {
       ...(lookupTable && {
         lookupTable: JSON.parse(lookupTable),
       }),
+    };
+  } catch (e) {
+    throw new Error(e);
+  }
+};
+
+const retrieveSubmittedData = async ({ weekTs }) => {
+  const filePath = path.resolve(storageDir, "people", `${weekTs}`);
+
+  try {
+    const fileContents = await readFile(
+      path.join(filePath, "ready.json"),
+      "utf8"
+    );
+    const lookupTable = await readFile(
+      path.join(storageDir, "lookup.json"),
+      "utf8"
+    );
+
+    return {
+      data: JSON.parse(fileContents),
+      lookupTable: JSON.parse(lookupTable),
     };
   } catch (e) {
     throw new Error(e);
