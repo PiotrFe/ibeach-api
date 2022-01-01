@@ -3,7 +3,7 @@ import { access, readdir, readFile } from "fs/promises";
 import path from "path";
 import { storageDir } from "../server.js";
 
-export const retrieveData = async (weekTs, forPdm) => {
+export const retrieveData = async ({ weekTs, pdm, submittedOnly = false }) => {
   const filePath = path.resolve(storageDir, "people", `${weekTs}`);
   let data = [];
   let statusSummary = {};
@@ -32,11 +32,13 @@ export const retrieveData = async (weekTs, forPdm) => {
         }
       }
 
-      data.push(...dataJSON);
+      if (!submittedOnly || (submittedOnly && status === "done")) {
+        data.push(...dataJSON);
+      }
     }
 
     // lookup file only to be sent on first fetch (with no pdm filter)
-    const lookupTable = forPdm
+    const lookupTable = pdm
       ? null
       : await readFile(path.join(storageDir, "lookup.json"), "utf8");
 

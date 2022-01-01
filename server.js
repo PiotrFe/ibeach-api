@@ -36,9 +36,13 @@ app.post("/api/master/:weekTs", async (req, res) => {
 
 app.get("/api/week/:weekTs/", async (req, res) => {
   const weekTs = req.params.weekTs;
+  const submittedOnly = Boolean(req.query.submitted);
 
   try {
-    const { data, statusSummary, lookupTable } = await retrieveData(weekTs);
+    const { data, statusSummary, lookupTable } = await retrieveData({
+      weekTs,
+      submittedOnly,
+    });
     res.json({
       data,
       statusSummary,
@@ -59,7 +63,10 @@ app.get("/api/week/:weekTs/:pdm", async (req, res) => {
   const pdmDecoded = decodeURIComponent(pdm);
 
   try {
-    const { data, statusSummary } = await retrieveData(weekTs, pdmDecoded);
+    const { data, statusSummary } = await retrieveData({
+      weekTs,
+      pdm: pdmDecoded,
+    });
     res.json({
       data,
       statusSummary,
