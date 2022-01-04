@@ -33,7 +33,11 @@ const saveSplitFilesForPDMs = async (weekTs, data) => {
   try {
     await access(dir, constants.R_OK | constants.W_OK);
   } catch (e) {
-    await mkdir(dir);
+    if (e.code === "ENOENT") {
+      await mkdir(dir);
+    } else {
+      throw new Error(e.message);
+    }
   }
 
   const dataPerPDM = {};

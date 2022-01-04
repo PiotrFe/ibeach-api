@@ -11,7 +11,7 @@ export const saveFile = async ({ weekTs, pdm, data, submit = false }) => {
       return await saveToReadyFile({ weekTs, data, overwrite: true });
     } catch (e) {
       console.log(e);
-      throw new Error(e);
+      throw new Error(e.message);
     }
   }
 
@@ -21,7 +21,7 @@ export const saveFile = async ({ weekTs, pdm, data, submit = false }) => {
     await access(filePath, constants.R_OK | constants.W_OK);
   } catch (e) {
     console.log(e);
-    throw new Error(e);
+    throw new Error(e.message);
   }
 
   try {
@@ -54,7 +54,7 @@ const saveToReadyFile = async ({ weekTs, data, overwrite = false }) => {
       await open(readyFilePath, "w");
     } catch (e) {
       console.log(e);
-      throw new Error(e);
+      throw new Error(e.message);
     }
   }
 
