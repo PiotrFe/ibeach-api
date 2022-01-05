@@ -21,7 +21,7 @@ export const retrieveProjectData = async ({ weekTs }) => {
     const fileContents = await readFile(filePath, "utf8");
     const data = JSON.parse(fileContents);
 
-    return { data };
+    return data;
   } catch (e) {
     console.log(e);
     throw new Error(e.message);

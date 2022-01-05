@@ -33,9 +33,11 @@ app.post("/api/master/:weekTs", async (req, res) => {
 
   try {
     await storeFile({ weekTs, data: req.body });
-    res.status(201).send("Uploaded successfully");
+    res.status(201).send();
   } catch (e) {
-    console.log(e);
+    if (e === 422) {
+      return res.status(400).send("Wrong file format");
+    }
     res.status(400).send("Upload failed");
   }
 });
@@ -45,12 +47,16 @@ app.get("/api/people/:weekTs/", async (req, res) => {
   const submittedOnly = Boolean(req.query.submitted);
 
   try {
-    const { data, statusSummary, lookupTable } = await retrieveData({
+    const {
+      data: people,
+      statusSummary,
+      lookupTable,
+    } = await retrieveData({
       weekTs,
       submittedOnly,
     });
     res.json({
-      data,
+      people,
       statusSummary,
       lookupTable,
     });
@@ -74,7 +80,7 @@ app.get("/api/people/:weekTs/:pdm", async (req, res) => {
       pdm: pdmDecoded,
     });
     res.json({
-      data,
+      people: data,
       statusSummary,
     });
   } catch (e) {
@@ -106,7 +112,7 @@ app.post("/api/people/:weekTs/:pdm/submit", async (req, res) => {
 
   try {
     await saveFile({ weekTs, pdm: pdmDecoded, data: req.body, submit: true });
-    res.status(201).send("Saved successfully");
+    res.status(201).send();
   } catch (e) {
     console.log(e);
     res.status(500).send();
@@ -117,11 +123,11 @@ app.get("/api/projects/:weekTs", async (req, res) => {
   const { weekTs } = req.params;
 
   try {
-    const { data } = await retrieveProjectData({
+    const data = await retrieveProjectData({
       weekTs,
     });
 
-    res.json({ data });
+    res.json(data);
   } catch (e) {
     console.log(e);
     if (e.message === "No data") {

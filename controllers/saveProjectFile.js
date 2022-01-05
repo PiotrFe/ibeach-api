@@ -28,6 +28,7 @@ export const saveProjectFile = async ({ weekTs, data }) => {
   }
 
   try {
+    // TODO: add create and update ts and resolve conflicts (i.e. only overwrite entries with < ts)
     const dataJSON = JSON.parse(data);
     const updatedData = [...dataJSON];
 

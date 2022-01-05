@@ -5,13 +5,10 @@ import { storageDir } from "../server.js";
 
 export const storeFile = async ({ weekTs, data }) => {
   const masterDir = path.join(storageDir, "master");
-  let week, full;
+  const { week, full } = data;
 
-  try {
-    ({ week, full } = JSON.parse(data));
-  } catch (e) {
-    console.log(e);
-    return Promise.reject("Unable to read file");
+  if (!week || !full) {
+    return Promise.reject(422);
   }
 
   try {

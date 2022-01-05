@@ -35,7 +35,7 @@ export const saveFile = async ({ weekTs, pdm, data, submit = false }) => {
       await saveToReadyFile({ weekTs, data });
     }
 
-    const updatedData = [...JSON.parse(data), status];
+    const updatedData = [...data, status];
 
     return await writeFile(filePath, JSON.stringify(updatedData), "utf8");
   } catch (e) {
@@ -59,7 +59,11 @@ const saveToReadyFile = async ({ weekTs, data, overwrite = false }) => {
   }
 
   if (overwrite) {
-    return await writeFile(path.join(folderPath, "ready.json"), data, "utf8");
+    return await writeFile(
+      path.join(folderPath, "ready.json"),
+      JSON.stringify(data),
+      "utf8"
+    );
   }
 
   const submittedData = await readFile(
@@ -68,8 +72,8 @@ const saveToReadyFile = async ({ weekTs, data, overwrite = false }) => {
   );
 
   const updatedData = submittedData
-    ? [...JSON.parse(submittedData), ...JSON.parse(data)]
-    : [...JSON.parse(data)];
+    ? [...JSON.parse(submittedData), ...data]
+    : [...data];
 
   return await writeFile(
     path.join(folderPath, "ready.json"),
