@@ -10,6 +10,7 @@ import {
   saveFile,
   retrieveProjectData,
   saveProjectFile,
+  allocateToProject,
 } from "./controllers/index.js";
 
 dotenv.config();
@@ -99,7 +100,7 @@ app.post("/api/people/:weekTs/:pdm", async (req, res) => {
 
   try {
     await saveFile({ weekTs, pdm: pdmDecoded, data: req.body });
-    res.status(201).send("Saved successfully");
+    res.status(201).send();
   } catch (e) {
     console.log(e);
     res.status(500).send();
@@ -143,7 +144,23 @@ app.post("/api/projects/:weekTs", async (req, res) => {
 
   try {
     await saveProjectFile({ weekTs, data: req.body });
-    res.status(201).send("Saved successfully");
+    res.status(201).send();
+  } catch (e) {
+    console.log(e);
+    res.status(500).send();
+  }
+});
+
+app.patch("/api/allocate/:weekTs", async (req, res) => {
+  const { weekTs } = req.params;
+
+  try {
+    const { peopleData, projectData } = await allocateToProject({
+      weekTs,
+      data: req.body,
+    });
+
+    res.send({ peopleData, projectData });
   } catch (e) {
     console.log(e);
     res.status(500).send();
