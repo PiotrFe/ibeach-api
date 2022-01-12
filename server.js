@@ -45,7 +45,8 @@ app.post("/api/master/:weekTs", async (req, res) => {
 
 app.get("/api/people/:weekTs/", async (req, res) => {
   const weekTs = req.params.weekTs;
-  const submittedOnly = Boolean(req.query.submitted);
+  const submittedOnly = req.query.submitted === "true" ? true : false;
+  const skipLookupTable = req.query.skiplookup === "true" ? true : false;
 
   try {
     const {
@@ -55,34 +56,12 @@ app.get("/api/people/:weekTs/", async (req, res) => {
     } = await retrieveData({
       weekTs,
       submittedOnly,
+      skipLookupTable,
     });
     res.json({
       people,
       statusSummary,
       lookupTable,
-    });
-  } catch (e) {
-    console.log(e);
-    if (e.message === "No data") {
-      res.status(404).send();
-    } else {
-      res.status(500).send();
-    }
-  }
-});
-
-app.get("/api/people/:weekTs/:pdm", async (req, res) => {
-  const { weekTs, pdm } = req.params;
-  const pdmDecoded = decodeURIComponent(pdm);
-
-  try {
-    const { data, statusSummary } = await retrieveData({
-      weekTs,
-      pdm: pdmDecoded,
-    });
-    res.json({
-      people: data,
-      statusSummary,
     });
   } catch (e) {
     console.log(e);

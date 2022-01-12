@@ -3,7 +3,11 @@ import { access, readdir, readFile } from "fs/promises";
 import path from "path";
 import { storageDir } from "../server.js";
 
-export const retrieveData = async ({ weekTs, pdm, submittedOnly = false }) => {
+export const retrieveData = async ({
+  weekTs,
+  skipLookupTable = false,
+  submittedOnly = false,
+}) => {
   const filePath = path.resolve(storageDir, "people", `${weekTs}`);
   let data = [];
   let statusSummary = {};
@@ -16,7 +20,10 @@ export const retrieveData = async ({ weekTs, pdm, submittedOnly = false }) => {
 
   if (submittedOnly) {
     try {
-      const submittedData = await retrieveSubmittedData({ weekTs });
+      const submittedData = await retrieveSubmittedData({
+        weekTs,
+        skipLookupTable,
+      });
 
       return Promise.resolve(submittedData);
     } catch (e) {
@@ -51,7 +58,7 @@ export const retrieveData = async ({ weekTs, pdm, submittedOnly = false }) => {
     }
 
     // lookup file only to be sent on first fetch (with no pdm filter)
-    const lookupTable = pdm
+    const lookupTable = skipLookupTable
       ? null
       : await readFile(path.join(storageDir, "lookup.json"), "utf8");
 
@@ -67,7 +74,7 @@ export const retrieveData = async ({ weekTs, pdm, submittedOnly = false }) => {
   }
 };
 
-const retrieveSubmittedData = async ({ weekTs }) => {
+const retrieveSubmittedData = async ({ weekTs, skipLookupTable }) => {
   const filePath = path.resolve(storageDir, "people", `${weekTs}`);
 
   try {
@@ -75,14 +82,13 @@ const retrieveSubmittedData = async ({ weekTs }) => {
       path.join(filePath, "ready.json"),
       "utf8"
     );
-    const lookupTable = await readFile(
-      path.join(storageDir, "lookup.json"),
-      "utf8"
-    );
+    const lookupTable = skipLookupTable
+      ? null
+      : await readFile(path.join(storageDir, "lookup.json"), "utf8");
 
     return {
       data: JSON.parse(fileContents),
-      lookupTable: JSON.parse(lookupTable),
+      lookupTable: lookupTable ? JSON.parse(lookupTable) : null,
     };
   } catch (e) {
     throw new Error(e);
