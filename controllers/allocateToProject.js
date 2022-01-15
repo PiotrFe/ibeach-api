@@ -1,5 +1,4 @@
-import { constants } from "fs";
-import { access, readdir, readFile, writeFile } from "fs/promises";
+import { readFile, writeFile } from "fs/promises";
 import path from "path";
 import { storageDir } from "../server.js";
 
@@ -7,10 +6,6 @@ export const allocateToProject = async ({ weekTs, data }) => {
   if (!data) {
     throw new Error("No data submitted");
   }
-
-  const { day } = data;
-
-  console.log({ data });
 
   const peopleFilePath = path.join(
     storageDir,
@@ -32,7 +27,7 @@ export const allocateToProject = async ({ weekTs, data }) => {
     const peopleData = JSON.parse(peopleFileContent);
     const projectData = JSON.parse(projectFileContent);
 
-    if (day !== "match") {
+    if (data.day !== "match") {
       allocateSingleDay({
         peopleData,
         projectData,
@@ -68,10 +63,21 @@ const getDaysLeft = (weekObj) => {
 };
 
 const allocateSingleDay = ({ peopleData, projectData, newEntry }) => {
-  const { person, project, day } = newEntry;
+  const { person, project, day, reallocateTo } = newEntry;
+
+  if (reallocateTo?.elemType === "projects") {
+    reallocatePerson({ peopleData, projectData, newEntry });
+    return;
+  }
+
+  if (reallocateTo?.elemType === "people") {
+    reallocateProject({ peopleData, projectData, newEntry });
+    return;
+  }
 
   const personIdx = peopleData.findIndex((entry) => entry.id === person.id);
   const projectIdx = projectData.findIndex((entry) => entry.id === project.id);
+
   const personWeek = {
     ...peopleData[personIdx].week,
     [day]: !project.value
@@ -105,7 +111,7 @@ const allocateSingleDay = ({ peopleData, projectData, newEntry }) => {
 };
 
 const allocateFullWeek = ({ peopleData, projectData, newEntry }) => {
-  const { person, project, day } = newEntry;
+  const { person, project } = newEntry;
 
   if (!person && !project) {
     throw new Error("No data supplied");
@@ -177,4 +183,121 @@ const clearWeek = ({ peopleData, projectData, entry }) => {
     }
   }
   primaryEntry.daysLeft = getDaysLeft(primaryEntry.week);
+};
+
+const reallocatePerson = ({ peopleData, projectData, newEntry }) => {
+  const { person, project, day: dayFrom, reallocateTo } = newEntry;
+  const { day: dayTo } = reallocateTo;
+
+  const personIdx = peopleData.findIndex((entry) => entry.id === person.id);
+  const currentProjectIndex = projectData.findIndex(
+    (entry) => entry.id === project.id
+  );
+  const newProjectIndex = projectData.findIndex(
+    (entry) => entry.id === reallocateTo.id
+  );
+  const newProject = projectData[newProjectIndex];
+
+  const personWeek = {
+    ...peopleData[personIdx].week,
+    [dayFrom]: true,
+    [dayTo]: !newProject
+      ? true
+      : {
+          id: newProject.id,
+          text: newProject.client,
+        },
+  };
+
+  peopleData[personIdx] = {
+    ...peopleData[personIdx],
+    week: personWeek,
+    daysLeft: getDaysLeft(personWeek),
+  };
+
+  const currentProjectWeek = {
+    ...projectData[currentProjectIndex].week,
+    [dayFrom]: true,
+  };
+
+  projectData[currentProjectIndex] = {
+    ...projectData[currentProjectIndex],
+    week: currentProjectWeek,
+    daysLeft: getDaysLeft(currentProjectWeek),
+  };
+
+  const newProjectWeek = {
+    ...projectData[newProjectIndex].week,
+    [dayTo]: !person.value
+      ? true
+      : {
+          id: person.id,
+          text: person.value,
+        },
+  };
+
+  projectData[newProjectIndex] = {
+    ...projectData[newProjectIndex],
+    week: newProjectWeek,
+    daysLeft: getDaysLeft(newProjectWeek),
+  };
+};
+
+const reallocateProject = ({ peopleData, projectData, newEntry }) => {
+  const { person, project, day: dayFrom, reallocateTo } = newEntry;
+  const { day: dayTo } = reallocateTo;
+
+  const projectIdx = projectData.findIndex((entry) => entry.id === project.id);
+  const currentPersonIndex = peopleData.findIndex(
+    (entry) => entry.id === person.id
+  );
+  const newPersonIndex = peopleData.findIndex(
+    (entry) => entry.id === reallocateTo.id
+  );
+
+  const newPerson = peopleData[newPersonIndex];
+
+  const projectWeek = {
+    ...projectData[projectIdx].week,
+    [dayFrom]: true,
+    [dayTo]: !newPerson
+      ? true
+      : {
+          id: newPerson.id,
+          text: newPerson.name,
+        },
+  };
+
+  projectData[projectIdx] = {
+    ...projectData[projectIdx],
+    week: projectWeek,
+    daysLeft: getDaysLeft(projectWeek),
+  };
+
+  const currentPersonWeek = {
+    ...peopleData[currentPersonIndex].week,
+    [dayFrom]: true,
+  };
+
+  peopleData[currentPersonIndex] = {
+    ...peopleData[currentPersonIndex],
+    week: currentPersonWeek,
+    daysLeft: getDaysLeft(currentPersonWeek),
+  };
+
+  const newPersonWeek = {
+    ...peopleData[newPersonIndex].week,
+    [dayTo]: !project.value
+      ? true
+      : {
+          id: project.id,
+          text: project.value,
+        },
+  };
+
+  peopleData[newPersonIndex] = {
+    ...peopleData[newPersonIndex],
+    week: newPersonWeek,
+    daysLeft: getDaysLeft(newPersonWeek),
+  };
 };
