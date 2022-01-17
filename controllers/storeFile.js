@@ -5,6 +5,21 @@ import { storageDir } from "../server.js";
 
 export const storeFile = async ({ weekTs, data }) => {
   const masterDir = path.join(storageDir, "master");
+  const peopleDir = path.join(storageDir, "people");
+  const projectDir = path.join(storageDir, "projects");
+
+  for (let dir of [storageDir, masterDir, peopleDir, projectDir]) {
+    try {
+      await access(dir, constants.R_OK | constants.W_OK);
+    } catch (e) {
+      if (e.code === "ENOENT") {
+        await mkdir(dir);
+      } else {
+        throw new Error(e.message);
+      }
+    }
+  }
+
   const { week, full } = data;
 
   if (!week || !full) {
