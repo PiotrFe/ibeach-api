@@ -1,12 +1,21 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "description": "",
+  "description": "App for weekly assignment allocation",
   "main": "server.js",
-  "type": "module",
+  "bin": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
+  },
+  "pkg": {
+    "assets": [
+      "node_modules/**/*",
+      "client-dev-app/**/*"
+    ],
+    "targets": [
+      "node16-macos-x64"
+    ]
   },
   "keywords": [],
   "author": "",

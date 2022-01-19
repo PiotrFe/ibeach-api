@@ -1,29 +1,52 @@
-import express from "express";
-import dotenv from "dotenv";
-import cors from "cors";
-import bodyParser from "body-parser";
-import { fileURLToPath } from "url";
-import path from "path";
-import {
+// import express from "express";
+// import dotenv from "dotenv";
+// import cors from "cors";
+// import bodyParser from "body-parser";
+// import { fileURLToPath } from "url";
+// import path from "path";
+// import {
+//   storeFile,
+//   retrieveData,
+//   saveFile,
+//   retrieveProjectData,
+//   saveProjectFile,
+//   allocateToProject,
+// } from "./controllers/index.js";
+
+const path = require("path");
+
+const dotEnvPath = path.join(__dirname, ".env");
+require("dotenv").config({
+  path: dotEnvPath,
+});
+
+const express = require("express");
+
+const port = process.env.PORT || 4000;
+
+const cors = require("cors");
+const bodyParser = require("body-parser");
+
+const {
   storeFile,
   retrieveData,
   saveFile,
   retrieveProjectData,
   saveProjectFile,
   allocateToProject,
-} from "./controllers/index.js";
-
-dotenv.config();
+} = require("./controllers/index.js");
 
 const app = express();
 app.use(cors());
+app.use(express.static(path.join(__dirname, "client-dev-app")));
 app.use(bodyParser.text());
 app.use(bodyParser.json());
-const port = process.env.PORT || 4000;
 
-const currentPath = fileURLToPath(import.meta.url);
-const currentDir = path.dirname(currentPath);
-export const storageDir = path.resolve(currentDir, "data_storage");
+// TODO: switch back
+// const currentPath = fileURLToPath(import.meta.url);
+// const currentDir = path.dirname(currentPath);
+// export const storageDir = path.resolve(currentDir, "data_storage");
+// const storageDir = path.resolve("/", `${process.env.STORAGE_DIR}`);
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
@@ -145,3 +168,5 @@ app.patch("/api/allocate/:weekTs", async (req, res) => {
     res.status(500).send();
   }
 });
+
+// module.exports.storageDir = storageDir;

@@ -1,24 +1,21 @@
-import { constants } from "fs";
-import { writeFile, access, mkdir } from "fs/promises";
-import path from "path";
-import { storageDir } from "../server.js";
+// import { constants } from "fs";
+// import { writeFile, access, mkdir } from "fs/promises";
+// import path from "path";
+// import { storageDir } from "../server.js";
 
-export const storeFile = async ({ weekTs, data }) => {
+const { constants } = require("fs");
+const { writeFile, access, mkdir } = require("fs/promises");
+const path = require("path");
+const storageDir =
+  process.env.RUNTIME_MODE === "EXE"
+    ? path.join(path.dirname(process.execPath), `${process.env.STORAGE_DIR}`)
+    : `${process.env.STORAGE_DIR}`;
+const { createStorageIfNone } = require("./createStorageIfNone.js");
+
+module.exports.storeFile = async ({ weekTs, data }) => {
   const masterDir = path.join(storageDir, "master");
-  const peopleDir = path.join(storageDir, "people");
-  const projectDir = path.join(storageDir, "projects");
 
-  for (let dir of [storageDir, masterDir, peopleDir, projectDir]) {
-    try {
-      await access(dir, constants.R_OK | constants.W_OK);
-    } catch (e) {
-      if (e.code === "ENOENT") {
-        await mkdir(dir);
-      } else {
-        throw new Error(e.message);
-      }
-    }
-  }
+  await createStorageIfNone({ weekTs });
 
   const { week, full } = data;
 
@@ -41,18 +38,8 @@ export const storeFile = async ({ weekTs, data }) => {
 
 const saveSplitFilesForPDMs = async (weekTs, data) => {
   const dir = path.join(storageDir, "people", weekTs);
-
-  try {
-    await access(dir, constants.R_OK | constants.W_OK);
-  } catch (e) {
-    if (e.code === "ENOENT") {
-      await mkdir(dir);
-    } else {
-      throw new Error(e.message);
-    }
-  }
-
   const dataPerPDM = {};
+
   data.forEach((item) => {
     const { pdm } = item;
 

@@ -1,8 +1,15 @@
-import { readFile, writeFile } from "fs/promises";
-import path from "path";
-import { storageDir } from "../server.js";
+// import { readFile, writeFile } from "fs/promises";
+// import path from "path";
+// import { storageDir } from "../server.js";
 
-export const allocateToProject = async ({ weekTs, data }) => {
+const { readFile, writeFile } = require("fs/promises");
+const path = require("path");
+const storageDir =
+  process.env.RUNTIME_MODE === "EXE"
+    ? path.join(path.dirname(process.execPath), `${process.env.STORAGE_DIR}`)
+    : `${process.env.STORAGE_DIR}`;
+
+module.exports.allocateToProject = async ({ weekTs, data }) => {
   if (!data) {
     throw new Error("No data submitted");
   }

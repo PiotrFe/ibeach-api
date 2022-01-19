@@ -1,9 +1,20 @@
-import { constants } from "fs";
-import { writeFile, access, readFile, appendFile, open } from "fs/promises";
-import path from "path";
-import { storageDir } from "../server.js";
+// import { constants } from "fs";
+// import { writeFile, access, readFile, open } from "fs/promises";
+// import path from "path";
+// import { storageDir } from "../server.js";
 
-export const saveFile = async ({ weekTs, pdm, data, submit = false }) => {
+const { constants } = require("fs");
+const { writeFile, access, readFile, open } = require("fs/promises");
+const path = require("path");
+const { createStorageIfNone } = require("./createStorageIfNone.js");
+const storageDir =
+  process.env.RUNTIME_MODE === "EXE"
+    ? path.join(path.dirname(process.execPath), `${process.env.STORAGE_DIR}`)
+    : `${process.env.STORAGE_DIR}`;
+
+module.exports.saveFile = async ({ weekTs, pdm, data, submit = false }) => {
+  await createStorageIfNone({ weekTs });
+
   const folderPath = path.resolve(storageDir, "people", `${weekTs}`);
 
   if (pdm === "allocator") {
@@ -47,23 +58,20 @@ const saveToReadyFile = async ({ weekTs, data, overwrite = false }) => {
   const folderPath = path.resolve(storageDir, "people", `${weekTs}`);
   const readyFilePath = path.join(folderPath, "ready.json");
 
+  console.log({ readyFilePath });
+
+  let fileContents;
+
   try {
-    await access(readyFilePath, constants.R_OK | constants.W_OK);
+    fileContents = await readFile(readyFilePath, "utf8");
   } catch (e) {
-    try {
-      await open(readyFilePath, "w");
-    } catch (e) {
-      console.log(e);
+    if (e.code !== "ENOENT") {
       throw new Error(e.message);
     }
   }
 
   if (overwrite) {
-    return await writeFile(
-      path.join(folderPath, "ready.json"),
-      JSON.stringify(data),
-      "utf8"
-    );
+    return await writeFile(readyFilePath, JSON.stringify(data), "utf8");
   }
 
   const submittedData = await readFile(

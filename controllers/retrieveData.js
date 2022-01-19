@@ -1,9 +1,19 @@
-import { constants } from "fs";
-import { access, readdir, readFile } from "fs/promises";
-import path from "path";
-import { storageDir } from "../server.js";
+// import { constants } from "fs";
+// import { access, readdir, readFile } from "fs/promises";
+// import path from "path";
+// import { storageDir } from "../server.js";
 
-export const retrieveData = async ({
+const { constants, readdirSync } = require("fs");
+const { access, readdir, readFile } = require("fs/promises");
+const path = require("path");
+const storageDir =
+  process.env.RUNTIME_MODE === "EXE"
+    ? path.join(path.dirname(process.execPath), `${process.env.STORAGE_DIR}`)
+    : `${process.env.STORAGE_DIR}`;
+
+console.log({ storageDir });
+
+module.exports.retrieveData = async ({
   weekTs,
   skipLookupTable = false,
   submittedOnly = false,
@@ -75,17 +85,23 @@ export const retrieveData = async ({
 };
 
 const retrieveSubmittedData = async ({ weekTs, skipLookupTable }) => {
-  const filePath = path.resolve(storageDir, "people", `${weekTs}`);
+  const filePath = path.join(storageDir, "people", `${weekTs}`);
+
+  let lookupTable;
+
+  try {
+    lookupTable = skipLookupTable
+      ? null
+      : await readFile(path.join(storageDir, "lookup.json"), "utf8");
+  } catch (e) {
+    console.log("Lookup not available");
+  }
 
   try {
     const fileContents = await readFile(
       path.join(filePath, "ready.json"),
       "utf8"
     );
-    const lookupTable = skipLookupTable
-      ? null
-      : await readFile(path.join(storageDir, "lookup.json"), "utf8");
-
     return {
       data: JSON.parse(fileContents),
       lookupTable: lookupTable ? JSON.parse(lookupTable) : null,

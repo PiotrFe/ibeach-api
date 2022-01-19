@@ -1,23 +1,24 @@
-import { constants } from "fs";
-import { writeFile, access, readFile, open, mkdir } from "fs/promises";
-import path from "path";
-import { storageDir } from "../server.js";
+// import { constants } from "fs";
+// import { writeFile, access, readFile, open, mkdir } from "fs/promises";
+// import path from "path";
+// import { storageDir } from "../server.js";
 
-export const saveProjectFile = async ({ weekTs, data }) => {
+const { constants } = require("fs");
+const { writeFile, access, readFile, open, mkdir } = require("fs/promises");
+const path = require("path");
+const { createStorageIfNone } = require("./createStorageIfNone.js");
+const storageDir =
+  process.env.RUNTIME_MODE === "EXE"
+    ? path.join(path.dirname(process.execPath), `${process.env.STORAGE_DIR}`)
+    : `${process.env.STORAGE_DIR}`;
+
+module.exports.saveProjectFile = async ({ weekTs, data }) => {
+  await createStorageIfNone({ weekTs });
+
   const folderPath = path.join(storageDir, "projects", `${weekTs}`);
   const filePath = path.join(folderPath, `${weekTs}.json`);
 
   let fileContents;
-
-  try {
-    await access(folderPath, constants.R_OK | constants.W_OK);
-  } catch (e) {
-    if (e.code === "ENOENT") {
-      await mkdir(folderPath);
-    } else {
-      throw new Error(e.message);
-    }
-  }
 
   try {
     fileContents = await readFile(filePath, "utf8");
