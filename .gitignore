@@ -2,4 +2,3 @@ node_modules
 data_storage
 .env
 client-dev-app
-dist
