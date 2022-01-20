@@ -21,13 +21,11 @@ require("dotenv").config({
 });
 
 const express = require("express");
-const kill = require("kill-port");
+
 const port = process.env.PORT || 4000;
 
 const cors = require("cors");
 const bodyParser = require("body-parser");
-
-const open = require("open");
 
 const {
   storeFile,
@@ -50,26 +48,8 @@ app.use(bodyParser.json());
 // export const storageDir = path.resolve(currentDir, "data_storage");
 // const storageDir = path.resolve("/", `${process.env.STORAGE_DIR}`);
 
-let server = app.listen(port, () => {
+app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
-});
-
-server.once("error", (e) => {
-  if (e.code === "EADDRINUSE") {
-    kill(4000, "tcp")
-      .then(
-        () =>
-          (server = app.listen(port, () => {
-            console.log(
-              `Closed other process and reopened the server on port ${port}`
-            );
-          }))
-      )
-      .catch((e) => {
-        console.log(e);
-        res.status(500).send("Something went wrong");
-      });
-  }
 });
 
 app.post("/api/master/:weekTs", async (req, res) => {
@@ -188,11 +168,5 @@ app.patch("/api/allocate/:weekTs", async (req, res) => {
     res.status(500).send();
   }
 });
-
-const launchChrome = async function () {
-  await open("http://localhost:4000");
-};
-
-launchChrome();
 
 // module.exports.storageDir = storageDir;
