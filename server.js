@@ -194,6 +194,10 @@ const launchChrome = async function () {
   open("http://localhost:4000");
 };
 
-launchChrome();
+if (process.env.RUNTIME_MODE === "EXE") {
+  launchChrome();
+}
+
+
 
 // module.exports.storageDir = storageDir;
