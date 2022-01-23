@@ -58,24 +58,30 @@ const saveToReadyFile = async ({ weekTs, data, overwrite = false }) => {
   const folderPath = path.resolve(storageDir, "people", `${weekTs}`);
   const readyFilePath = path.join(folderPath, "ready.json");
 
-  console.log({ readyFilePath });
-
   let fileContents;
 
   try {
     fileContents = await readFile(readyFilePath, "utf8");
   } catch (e) {
-    if (e.code !== "ENOENT") {
+    if (e.code === "ENOENT") {
+      await open(readyFilePath, "w+");
+    }
+    else  {
       throw new Error(e.message);
     }
   }
 
   if (overwrite) {
-    return await writeFile(readyFilePath, JSON.stringify(data), "utf8");
+    try {
+      return await writeFile(readyFilePath, JSON.stringify(data), "utf8");
+    } catch (e) {
+      throw new Error(e.message);
+    }
+
   }
 
   const submittedData = await readFile(
-    path.join(folderPath, "ready.json"),
+    readyFilePath,
     "utf8"
   );
 
