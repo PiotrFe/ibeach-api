@@ -108,10 +108,10 @@ app.get("/api/people/:weekTs/", async (req, res) => {
       lookupTable,
     });
   } catch (e) {
-    console.log(e);
     if (e.message === "No data") {
       res.status(404).send();
     } else {
+      console.log(e);
       res.status(500).send();
     }
   }
@@ -153,10 +153,10 @@ app.get("/api/projects/:weekTs", async (req, res) => {
 
     res.json(data);
   } catch (e) {
-    console.log(e);
     if (e.message === "No data") {
       res.status(404).send();
     } else {
+      console.log(e);
       res.status(500).send();
     }
   }
@@ -197,7 +197,5 @@ const launchChrome = async function () {
 if (process.env.RUNTIME_MODE === "EXE") {
   launchChrome();
 }
-
-
 
 // module.exports.storageDir = storageDir;

@@ -93,9 +93,7 @@ const retrieveSubmittedData = async ({ weekTs, skipLookupTable }) => {
     lookupTable = skipLookupTable
       ? null
       : await readFile(path.join(storageDir, "lookup.json"), "utf8");
-  } catch (e) {
-    console.log("Lookup not available");
-  }
+  } catch (e) {}
 
   try {
     const fileContents = await readFile(

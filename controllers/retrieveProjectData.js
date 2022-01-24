@@ -31,7 +31,6 @@ module.exports.retrieveProjectData = async ({ weekTs }) => {
 
     return data;
   } catch (e) {
-    console.log(e);
     throw new Error(e.message);
   }
 };
