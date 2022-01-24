@@ -1,10 +1,17 @@
 const { constants } = require("fs");
 const { writeFile, access, mkdir } = require("fs/promises");
 const path = require("path");
-const storageDir =
-  process.env.RUNTIME_MODE === "EXE"
-    ? path.join(path.dirname(process.execPath), `${process.env.STORAGE_DIR}`)
-    : `${process.env.STORAGE_DIR}`;
+const { getStoragePath } = require("../utils/getStoragePath.js");
+
+let storageDir;
+
+try {
+  storageDir = getStoragePath();
+} catch (e) {
+  console.log(e);
+  throw new Error(e.message);
+}
+
 
 module.exports.createStorageIfNone = async function ({ weekTs }) {
   const masterDir = path.join(storageDir, "master");
