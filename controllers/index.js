@@ -12,6 +12,7 @@ const { saveFile } = require("./saveFile.js");
 const { retrieveProjectData } = require("./retrieveProjectData.js");
 const { saveProjectFile } = require("./saveProjectFile.js");
 const { allocateToProject } = require("./allocateToProject.js");
+const { retrieveContactData } = require("./retrieveContactData.js");
 // const { createStorageIfNone } = require("./createStorageIfNone.js");
 
 module.exports = {
@@ -21,4 +22,5 @@ module.exports = {
   retrieveProjectData,
   saveProjectFile,
   allocateToProject,
+  retrieveContactData,
 };

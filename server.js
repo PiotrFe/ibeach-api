@@ -37,6 +37,7 @@ const {
   retrieveProjectData,
   saveProjectFile,
   allocateToProject,
+  retrieveContactData,
 } = require("./controllers/index.js");
 
 const app = express();
@@ -114,6 +115,16 @@ app.get("/api/people/:weekTs/", async (req, res) => {
       console.log(e);
       res.status(500).send();
     }
+  }
+});
+
+app.get("/api/contacts", async (req, res) => {
+  try {
+    const data = await retrieveContactData();
+
+    res.status(200).type("text/csv").send(data);
+  } catch (e) {
+    console.log(e);
   }
 });
 
