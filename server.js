@@ -14,21 +14,18 @@
 // } from "./controllers/index.js";
 
 const path = require("path");
-
 const dotEnvPath = path.join(__dirname, ".env");
 require("dotenv").config({
   path: dotEnvPath,
 });
 
 const express = require("express");
-
-const port = process.env.PORT || 4000;
-
 const cors = require("cors");
 const bodyParser = require("body-parser");
-
 const kill = require("kill-port");
 const open = require("open");
+const colors = require("colors");
+const { getStoragePath } = require("./utils/getStoragePath.js");
 
 const {
   storeFile,
@@ -39,6 +36,8 @@ const {
   allocateToProject,
   retrieveContactData,
 } = require("./controllers/index.js");
+
+const port = process.env.PORT || 4000;
 
 const app = express();
 app.use(cors());
@@ -54,6 +53,13 @@ app.use(bodyParser.json());
 
 let server = app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
+  console.log(`*****************************`.bold.yellow);
+  console.log(`--- Welcome to iBeach! ---`.yellow);
+  console.log("App is running at ".white + `http://localhost:${port}`.green);
+  console.log(
+    "Data storage is located under ".white + `${getStoragePath()}`.green
+  );
+  console.log(`*****************************`.bold.yellow);
 });
 
 server.once("error", (e) => {
@@ -92,21 +98,25 @@ app.get("/api/people/:weekTs/", async (req, res) => {
   const weekTs = req.params.weekTs;
   const submittedOnly = req.query.submitted === "true" ? true : false;
   const skipLookupTable = req.query.skiplookup === "true" ? true : false;
+  const getConfig = req.query.getconfig === "true" ? true : false;
 
   try {
     const {
       data: people,
       statusSummary,
       lookupTable,
+      config,
     } = await retrieveData({
       weekTs,
       submittedOnly,
       skipLookupTable,
+      getConfig,
     });
     res.json({
       people,
       statusSummary,
       lookupTable,
+      config,
     });
   } catch (e) {
     if (e.message === "No data") {

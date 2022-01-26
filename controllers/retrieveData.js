@@ -1,7 +1,6 @@
 // import { constants } from "fs";
 // import { access, readdir, readFile } from "fs/promises";
 // import path from "path";
-// import { storageDir } from "../server.js";
 
 const { constants, readdirSync } = require("fs");
 const { access, readdir, readFile } = require("fs/promises");
@@ -17,16 +16,16 @@ try {
   throw new Error(e.message);
 }
 
-console.log({ storageDir });
-
 module.exports.retrieveData = async ({
   weekTs,
   skipLookupTable = false,
   submittedOnly = false,
+  getConfig = true,
 }) => {
   const filePath = path.resolve(storageDir, "people", `${weekTs}`);
-  let data = [];
-  let statusSummary = {};
+  let data;
+  let lookupTable;
+  let config;
 
   try {
     await access(filePath, constants.R_OK);
@@ -34,19 +33,62 @@ module.exports.retrieveData = async ({
     throw new Error("No data");
   }
 
+  try {
+    lookupTable = skipLookupTable
+      ? null
+      : await readFile(path.join(storageDir, "lookup.json"), "utf8");
+  } catch (e) {}
+
+  try {
+    config = !getConfig
+      ? null
+      : await readFile(path.join(storageDir, "config.json"), "utf8");
+  } catch (e) {}
+
   if (submittedOnly) {
     try {
-      const submittedData = await retrieveSubmittedData({
-        weekTs,
-        skipLookupTable,
+      data = await retrieveSubmittedData({
+        filePath,
       });
-
-      return Promise.resolve(submittedData);
+    } catch (e) {
+      throw new Error("No data");
+    }
+  } else {
+    try {
+      data = await retrieveAllData({
+        filePath,
+      });
     } catch (e) {
       throw new Error("No data");
     }
   }
 
+  return Promise.resolve({
+    ...data,
+    ...(lookupTable && {
+      lookupTable: JSON.parse(lookupTable),
+    }),
+    ...(config && {
+      config: JSON.parse(config),
+    }),
+  });
+};
+
+const retrieveSubmittedData = async ({ filePath }) => {
+  try {
+    const fileContents = await readFile(
+      path.join(filePath, "ready.json"),
+      "utf8"
+    );
+    return {
+      data: JSON.parse(fileContents),
+    };
+  } catch (e) {
+    throw new Error(e);
+  }
+};
+
+const retrieveAllData = async ({ filePath }) => {
   try {
     const files = await readdir(filePath);
 
@@ -73,42 +115,9 @@ module.exports.retrieveData = async ({
       }
     }
 
-    // lookup file only to be sent on first fetch (with no pdm filter)
-    const lookupTable = skipLookupTable
-      ? null
-      : await readFile(path.join(storageDir, "lookup.json"), "utf8");
-
     return {
       data,
       statusSummary,
-      ...(lookupTable && {
-        lookupTable: JSON.parse(lookupTable),
-      }),
-    };
-  } catch (e) {
-    throw new Error(e);
-  }
-};
-
-const retrieveSubmittedData = async ({ weekTs, skipLookupTable }) => {
-  const filePath = path.join(storageDir, "people", `${weekTs}`);
-
-  let lookupTable;
-
-  try {
-    lookupTable = skipLookupTable
-      ? null
-      : await readFile(path.join(storageDir, "lookup.json"), "utf8");
-  } catch (e) {}
-
-  try {
-    const fileContents = await readFile(
-      path.join(filePath, "ready.json"),
-      "utf8"
-    );
-    return {
-      data: JSON.parse(fileContents),
-      lookupTable: lookupTable ? JSON.parse(lookupTable) : null,
     };
   } catch (e) {
     throw new Error(e);
