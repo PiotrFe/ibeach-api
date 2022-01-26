@@ -52,14 +52,7 @@ app.use(bodyParser.json());
 // const storageDir = path.resolve("/", `${process.env.STORAGE_DIR}`);
 
 let server = app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-  console.log(`*****************************`.bold.yellow);
-  console.log(`--- Welcome to iBeach! ---`.yellow);
-  console.log("App is running at ".white + `http://localhost:${port}`.green);
-  console.log(
-    "Data storage is located under ".white + `${getStoragePath()}`.green
-  );
-  console.log(`*****************************`.bold.yellow);
+  printWelcomeMessage();
 });
 
 server.once("error", (e) => {
@@ -68,9 +61,7 @@ server.once("error", (e) => {
       .then(
         () =>
           (server = app.listen(port, () => {
-            console.log(
-              `Closed other process and reopened the server on port ${port}`
-            );
+            printWelcomeMessage();
           }))
       )
       .catch((e) => {
@@ -218,5 +209,16 @@ const launchChrome = async function () {
 if (process.env.RUNTIME_MODE === "EXE") {
   launchChrome();
 }
+
+const printWelcomeMessage = () => {
+  console.log(`Server is running on port ${port}`);
+  console.log(`*****************************`.bold.yellow);
+  console.log(`--- Welcome to iBeach! ---`.yellow);
+  console.log("App is running at ".white + `http://localhost:${port}`.green);
+  console.log(
+    "Data storage is located under ".white + `${getStoragePath()}`.green
+  );
+  console.log(`*****************************`.bold.yellow);
+};
 
 // module.exports.storageDir = storageDir;
