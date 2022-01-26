@@ -110,12 +110,8 @@ app.get("/api/people/:weekTs/", async (req, res) => {
       config,
     });
   } catch (e) {
-    if (e.message === "No data") {
-      res.status(404).send();
-    } else {
-      console.log(e);
-      res.status(500).send();
-    }
+    console.log(e);
+    res.status(500).send(e.message);
   }
 });
 
@@ -165,12 +161,8 @@ app.get("/api/projects/:weekTs", async (req, res) => {
 
     res.json(data);
   } catch (e) {
-    if (e.message === "No data") {
-      res.status(404).send();
-    } else {
-      console.log(e);
-      res.status(500).send();
-    }
+    console.log(e);
+    res.status(500).send();
   }
 });
 

@@ -30,20 +30,24 @@ module.exports.retrieveData = async ({
   try {
     await access(filePath, constants.R_OK);
   } catch (e) {
-    throw new Error("No data");
+    handleError(e);
   }
 
   try {
     lookupTable = skipLookupTable
       ? null
       : await readFile(path.join(storageDir, "lookup.json"), "utf8");
-  } catch (e) {}
+  } catch (e) {
+    handleError(e);
+  }
 
   try {
     config = !getConfig
       ? null
       : await readFile(path.join(storageDir, "config.json"), "utf8");
-  } catch (e) {}
+  } catch (e) {
+    handleError(e);
+  }
 
   if (submittedOnly) {
     try {
@@ -51,7 +55,7 @@ module.exports.retrieveData = async ({
         filePath,
       });
     } catch (e) {
-      throw new Error("No data");
+      handleError(e);
     }
   } else {
     try {
@@ -59,7 +63,7 @@ module.exports.retrieveData = async ({
         filePath,
       });
     } catch (e) {
-      throw new Error("No data");
+      handleError(e);
     }
   }
 
@@ -74,6 +78,12 @@ module.exports.retrieveData = async ({
   });
 };
 
+const handleError = (e) => {
+  if (e.code !== "ENOENT") {
+    throw e;
+  }
+};
+
 const retrieveSubmittedData = async ({ filePath }) => {
   try {
     const fileContents = await readFile(
@@ -84,11 +94,13 @@ const retrieveSubmittedData = async ({ filePath }) => {
       data: JSON.parse(fileContents),
     };
   } catch (e) {
-    throw new Error(e);
+    throw e;
   }
 };
 
 const retrieveAllData = async ({ filePath }) => {
+  let data = [];
+  let statusSummary = {};
   try {
     const files = await readdir(filePath);
 
@@ -120,6 +132,6 @@ const retrieveAllData = async ({ filePath }) => {
       statusSummary,
     };
   } catch (e) {
-    throw new Error(e);
+    throw e;
   }
 };
