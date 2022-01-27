@@ -122,9 +122,8 @@ const retrieveAllData = async ({ filePath }) => {
         }
       }
 
-      if (!submittedOnly || (submittedOnly && status === "done")) {
-        data.push(...dataJSON);
-      }
+      data = [...dataJSON]
+    
     }
 
     return {
