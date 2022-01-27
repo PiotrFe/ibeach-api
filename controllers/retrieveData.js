@@ -122,7 +122,7 @@ const retrieveAllData = async ({ filePath }) => {
         }
       }
 
-      data = [...dataJSON]
+      data.push(...dataJSON);
     
     }
 

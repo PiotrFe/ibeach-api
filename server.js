@@ -203,14 +203,13 @@ if (process.env.RUNTIME_MODE === "EXE") {
 }
 
 const printWelcomeMessage = () => {
-  console.log(`Server is running on port ${port}`);
-  console.log(`*****************************`.bold.yellow);
+  console.log(`*****************************`.yellow);
   console.log(`--- Welcome to iBeach! ---`.yellow);
   console.log("App is running at ".white + `http://localhost:${port}`.green);
   console.log(
     "Data storage is located under ".white + `${getStoragePath()}`.green
   );
-  console.log(`*****************************`.bold.yellow);
+  console.log(`*****************************`.yellow);
 };
 
 // module.exports.storageDir = storageDir;
