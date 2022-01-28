@@ -4,7 +4,7 @@
 // import { storageDir } from "../server.js";
 
 const { constants } = require("fs");
-const { writeFile, access, readFile, open, mkdir } = require("fs/promises");
+const { writeFile, readFile } = require("fs/promises");
 const path = require("path");
 const { createStorageIfNone } = require("./createStorageIfNone.js");
 const { getStoragePath } = require("../utils/getStoragePath.js");
@@ -17,7 +17,6 @@ try {
   console.log(e);
   throw new Error(e.message);
 }
-
 
 module.exports.saveProjectFile = async ({ weekTs, data }) => {
   await createStorageIfNone({ weekTs });

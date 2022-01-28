@@ -4,7 +4,7 @@
 // import { storageDir } from "../server.js";
 
 const { constants } = require("fs");
-const { writeFile, access, mkdir } = require("fs/promises");
+const { writeFile, access, mkdir, readFile } = require("fs/promises");
 const path = require("path");
 const { createStorageIfNone } = require("./createStorageIfNone.js");
 
@@ -18,8 +18,6 @@ try {
   console.log(e);
   throw new Error(e.message);
 }
-
-
 
 module.exports.storeFile = async ({ weekTs, data }) => {
   const masterDir = path.join(storageDir, "master");
@@ -47,7 +45,25 @@ module.exports.storeFile = async ({ weekTs, data }) => {
 
 const saveSplitFilesForPDMs = async (weekTs, data) => {
   const dir = path.join(storageDir, "people", weekTs);
+
+  let configRaw;
+
+  try {
+    configRaw = await readFile(path.join(storageDir, "config.json"), "utf8");
+  } catch (e) {
+    if (e.code !== "ENOENT") {
+      throw e;
+    }
+  }
+
+  const { pdms } = configRaw ? JSON.parse(configRaw) : {};
   const dataPerPDM = {};
+
+  if (pdms?.length) {
+    for (let pdm of pdms) {
+      dataPerPDM[pdm] = [];
+    }
+  }
 
   data.forEach((item) => {
     const { pdm } = item;

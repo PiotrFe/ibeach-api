@@ -62,6 +62,7 @@ module.exports.saveFile = async ({ weekTs, pdm, data, submit = false }) => {
 const saveToReadyFile = async ({ weekTs, data, overwrite = false }) => {
   const folderPath = path.resolve(storageDir, "people", `${weekTs}`);
   const readyFilePath = path.join(folderPath, "ready.json");
+  let fileHandle;
 
   let fileContents;
 
@@ -69,9 +70,8 @@ const saveToReadyFile = async ({ weekTs, data, overwrite = false }) => {
     fileContents = await readFile(readyFilePath, "utf8");
   } catch (e) {
     if (e.code === "ENOENT") {
-      await open(readyFilePath, "w+");
-    }
-    else  {
+      fileHandle = await open(readyFilePath, "w+");
+    } else {
       throw new Error(e.message);
     }
   }
@@ -82,17 +82,17 @@ const saveToReadyFile = async ({ weekTs, data, overwrite = false }) => {
     } catch (e) {
       throw new Error(e.message);
     }
-
   }
 
-  const submittedData = await readFile(
-    readyFilePath,
-    "utf8"
-  );
+  const submittedData = await readFile(readyFilePath, "utf8");
 
   const updatedData = submittedData
     ? [...JSON.parse(submittedData), ...data]
     : [...data];
+
+  if (fileHandle) {
+    fileHandle.close();
+  }
 
   return await writeFile(
     path.join(folderPath, "ready.json"),
