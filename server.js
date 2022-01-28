@@ -35,6 +35,7 @@ const {
   saveProjectFile,
   allocateToProject,
   retrieveContactData,
+  saveConfigChanges,
 } = require("./controllers/index.js");
 
 const port = process.env.PORT || 4000;
@@ -188,6 +189,16 @@ app.patch("/api/allocate/:weekTs", async (req, res) => {
     });
 
     res.send({ peopleData, projectData });
+  } catch (e) {
+    console.log(e);
+    res.status(500).send();
+  }
+});
+
+app.patch("/api/config", async (req, res) => {
+  try {
+    const savedConfig = await saveConfigChanges(req.body);
+    res.send(savedConfig);
   } catch (e) {
     console.log(e);
     res.status(500).send();

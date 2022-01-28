@@ -2,7 +2,7 @@
 // import { access, readdir, readFile } from "fs/promises";
 // import path from "path";
 
-const { constants, readdirSync } = require("fs");
+const { constants } = require("fs");
 const { access, readdir, readFile } = require("fs/promises");
 const path = require("path");
 const { getStoragePath } = require("../utils/getStoragePath.js");
@@ -13,7 +13,7 @@ try {
   storageDir = getStoragePath();
 } catch (e) {
   console.log(e);
-  throw new Error(e.message);
+  throw e;
 }
 
 module.exports.retrieveData = async ({
@@ -123,7 +123,6 @@ const retrieveAllData = async ({ filePath }) => {
       }
 
       data.push(...dataJSON);
-    
     }
 
     return {
