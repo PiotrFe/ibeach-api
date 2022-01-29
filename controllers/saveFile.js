@@ -33,6 +33,8 @@ module.exports.saveFile = async ({ weekTs, pdm, data, submit = false }) => {
 
   const filePath = path.join(folderPath, `${pdm.toLowerCase()}.json`);
 
+  console.log({ filePath });
+
   try {
     await access(filePath, constants.R_OK | constants.W_OK);
   } catch (e) {

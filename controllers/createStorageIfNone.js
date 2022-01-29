@@ -12,7 +12,6 @@ try {
   throw new Error(e.message);
 }
 
-
 module.exports.createStorageIfNone = async function ({ weekTs }) {
   const masterDir = path.join(storageDir, "master");
   const peopleDir = path.join(storageDir, "people", `${weekTs}`);
@@ -23,7 +22,6 @@ module.exports.createStorageIfNone = async function ({ weekTs }) {
       await access(dir, constants.R_OK | constants.W_OK);
     } catch (e) {
       if (e.code === "ENOENT") {
-        console.log(`Creating dir: ${dir}`);
         await mkdir(dir, { recursive: true });
       } else {
         throw new Error(e.message);
