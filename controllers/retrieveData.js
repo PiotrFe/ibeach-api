@@ -86,12 +86,17 @@ const handleError = (e) => {
 
 const retrieveSubmittedData = async ({ filePath }) => {
   try {
-    const fileContents = await readFile(
-      path.join(filePath, "ready.json"),
-      "utf8"
-    );
+    const readyData = [];
+    const files = await readdir(filePath);
+
+    for (const file of files) {
+      if (file.search(/ready.*\.json/g) > -1) {
+        const fileContents = await readFile(path.join(filePath, file), "utf8");
+        readyData.push(...JSON.parse(fileContents));
+      }
+    }
     return {
-      data: JSON.parse(fileContents),
+      data: readyData,
     };
   } catch (e) {
     throw e;
