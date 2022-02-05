@@ -36,6 +36,7 @@ const {
   allocateToProject,
   retrieveContactData,
   saveConfigChanges,
+  retrieveHistory,
 } = require("./controllers/index.js");
 
 const port = process.env.PORT || 4000;
@@ -199,6 +200,21 @@ app.patch("/api/config", async (req, res) => {
   try {
     const savedConfig = await saveConfigChanges(req.body);
     res.send(savedConfig);
+  } catch (e) {
+    console.log(e);
+    res.status(500).send();
+  }
+});
+
+app.get("/history", async (req, res) => {
+  try {
+    const { from, to } = req.query;
+
+    if (!from || !to) {
+      throw Error("Malformed request");
+    }
+
+    const data = await retrieveHistory(from, to);
   } catch (e) {
     console.log(e);
     res.status(500).send();

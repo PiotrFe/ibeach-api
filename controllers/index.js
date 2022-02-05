@@ -14,6 +14,7 @@ const { saveProjectFile } = require("./saveProjectFile.js");
 const { allocateToProject } = require("./allocateToProject.js");
 const { retrieveContactData } = require("./retrieveContactData.js");
 const { saveConfigChanges } = require("./saveConfigChanges.js");
+const { retrieveHistory } = require("./retrieveHistory.js");
 
 module.exports = {
   storeFile,
@@ -24,4 +25,5 @@ module.exports = {
   allocateToProject,
   retrieveContactData,
   saveConfigChanges,
+  retrieveHistory,
 };
