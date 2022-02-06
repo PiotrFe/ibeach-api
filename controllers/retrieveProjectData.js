@@ -4,7 +4,7 @@
 // import { storageDir } from "../server.js";
 
 const { constants } = require("fs");
-const { access, readdir, readFile } = require("fs/promises");
+const { access, readFile } = require("fs/promises");
 const path = require("path");
 const { getStoragePath } = require("../utils/getStoragePath.js");
 

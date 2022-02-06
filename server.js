@@ -215,6 +215,8 @@ app.get("/history", async (req, res) => {
     }
 
     const data = await retrieveHistory(from, to);
+
+    res.send(data);
   } catch (e) {
     console.log(e);
     res.status(500).send();
