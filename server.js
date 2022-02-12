@@ -208,13 +208,13 @@ app.patch("/api/config", async (req, res) => {
 
 app.get("/history", async (req, res) => {
   try {
-    const { from, to } = req.query;
+    const { from, to, cstView, tags } = req.query;
 
     if (!from || !to) {
       throw Error("Malformed request");
     }
 
-    const data = await retrieveHistory(from, to);
+    const data = await retrieveHistory(from, to, cstView, tags);
 
     res.send(data);
   } catch (e) {

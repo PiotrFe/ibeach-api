@@ -10,8 +10,20 @@ const { Interface } = require("../utils/interface");
 
 const { getStoragePath } = require("../utils/getStoragePath.js");
 
-module.exports.retrieveHistory = async function retrieveHistory(fromTs, toTs) {
+module.exports.retrieveHistory = async function retrieveHistory(
+  fromTs,
+  toTs,
+  cstView,
+  tags
+) {
   let storageDir;
+  const withCSTView = Boolean(Number(cstView));
+  const withTags = Boolean(Number(tags));
+
+  console.log({
+    withCSTView,
+    withTags,
+  });
 
   try {
     storageDir = getStoragePath();
