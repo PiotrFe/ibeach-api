@@ -15,18 +15,14 @@ app.listen(port, () => {
 
 app.post("/auth", async (req, res) => {
   const { name, password } = req.body;
-  console.log({
-    name,
-    password,
-  });
   if (password === process.env.USER_PASSWORD) {
-    res.status(200).json({
+    return res.status(200).json({
       name,
       authorized: true,
     });
   }
 
-  res.status(401).json({
+  return res.status(401).json({
     name,
     authorized: false,
   });
