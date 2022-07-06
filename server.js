@@ -53,24 +53,36 @@ app.use(bodyParser.json());
 // export const storageDir = path.resolve(currentDir, "data_storage");
 // const storageDir = path.resolve("/", `${process.env.STORAGE_DIR}`);
 
-let server = app.listen(port, () => {
-  printWelcomeMessage();
+// let server = app.listen(port, () => {
+//   console.log(`Server running on port ${port}`);
+// });
+
+// server.once("error", (e) => {
+//   if (e.code === "EADDRINUSE") {
+//     kill(4000, "tcp")
+//       .then(
+//         () =>
+//           (server = app.listen(port, () => {
+//             printWelcomeMessage();
+//           }))
+//       )
+//       .catch((e) => {
+//         console.log(e);
+//         res.status(500).send("Something went wrong");
+//       });
+//   }
+// });
+
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });
 
-server.once("error", (e) => {
-  if (e.code === "EADDRINUSE") {
-    kill(4000, "tcp")
-      .then(
-        () =>
-          (server = app.listen(port, () => {
-            printWelcomeMessage();
-          }))
-      )
-      .catch((e) => {
-        console.log(e);
-        res.status(500).send("Something went wrong");
-      });
-  }
+app.post("/auth", async (req, res) => {
+  const { name, password } = req.body;
+  console.log({
+    name,
+    password,
+  });
 });
 
 app.post("/api/master/:weekTs", async (req, res) => {
@@ -228,6 +240,7 @@ const launchChrome = async function () {
 };
 
 if (process.env.RUNTIME_MODE === "EXE") {
+  printWelcomeMessage();
   launchChrome();
 }
 
