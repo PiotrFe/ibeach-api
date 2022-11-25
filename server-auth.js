@@ -2,7 +2,6 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
-const salt = bcrypt.genSaltSync(10);
 const bodyParser = require("body-parser");
 
 const port = process.env.PORT || 4000;
@@ -17,7 +16,15 @@ app.listen(port, () => {
 
 app.post("/auth", async (req, res) => {
   const { name, password } = req.body;
+
+  if (!password || !process.env.USER_PASSWORD) {
+    return res.status(401).json({
+      name,
+      authorized: false,
+    });
+  }
   const pwMatch = bcrypt.compareSync(password, process.env.USER_PASSWORD);
+
   if (pwMatch) {
     return res.status(200).json({
       name,
